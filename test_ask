@@ -1,0 +1,136 @@
+#!/bin/sh
+# Test the ask utility.
+
+function run_test_case_sensitive() {
+    echo $test_response | ./ask -c "** Answer [Y]es, [N]o, or [M]aybe: " YNM
+    ask_result=$?
+}
+
+function run_test_case_ignore() {
+    echo $test_response | ./ask "** Answer [Y]es, [N]o, or [M]aybe: " YNM
+    ask_result=$?
+}
+
+function run_ask_case_ignore() {
+    echo "case_ignore - test any key you want."
+    ./ask "** Answer [Y]es, [N]o, or [M]aybe: " YNM
+    ask_result=$?
+}
+
+function run_ask_case_sensitive() {
+    echo "case_sensitive - test any key you want."
+    ./ask -c "** Answer [Y]es, [N]o, or [M]aybe: " YNM
+    ask_result=$?
+}
+
+function print_result() {
+    echo "test_ask: Ask result (return code): $ask_result"
+
+    if [ $ask_result -lt 0 ]; then
+        echo "test_ask: User pressed Esc or Enter without making a choice."
+    fi
+
+    if [ $ask_result -eq 126 ]; then
+        echo "test_ask (126): User error"
+        echo "  The user pressed Enter, but made no choice."
+    elif [ $ask_result -eq 127 ]; then
+        echo "test_ask (127): User error"
+        echo "  The user pressed Esc or a special key (F5, PgUp, etc)."
+    elif [ $ask_result -eq 0 ]; then
+        echo "test_ask (0): User error"
+        if [ "$test_response" == ""  ]; then
+            echo "test_ask ($ask_result): User pressed a key that was NOT in the list of choices(YNM)."
+        else
+            echo "test_ask ($ask_result): User pressed \"$test_response\" that was NOT in the list of choices(YNM)."
+        fi
+    elif [ $ask_result -gt 3 ]; then
+        echo "test_ask ($ask_result, -gt 3): PROGRAM ERROR"
+        echo "  The return is -gt the number of choices."
+    else
+        if [ "$test_response" == ""  ]; then
+            echo "test_ask ($ask_result): User pressed a key that was in the list of choices(YNM)."
+        else
+            echo "test_ask ($ask_result): User pressed \"$test_response\" that was in the list of choices(YNM)."
+        
+        fi
+    fi
+    echo
+    echo "#####"
+}
+
+echo
+
+echo "Test with no option, default (case ignored)."
+echo 
+
+test_response=y
+run_test_case_ignore
+print_result
+
+test_response=Y
+run_test_case_ignore
+print_result
+
+test_response=n
+run_test_case_ignore
+print_result
+
+test_response=N
+run_test_case_ignore
+print_result
+
+test_response=m
+run_test_case_ignore
+print_result
+
+test_response=M
+run_test_case_ignore
+print_result
+
+test_response=""
+run_test_case_ignore
+print_result
+
+echo
+echo "Test with -c option (case sensitive)"
+echo 
+
+test_response=y
+run_test_case_sensitive
+print_result
+
+test_response=Y
+run_test_case_sensitive
+print_result
+
+test_response=n
+run_test_case_sensitive
+print_result
+
+test_response=N
+run_test_case_sensitive
+print_result
+
+test_response=m
+run_test_case_sensitive
+print_result
+
+test_response=M
+run_test_case_sensitive
+print_result
+
+test_response=""
+run_test_case_sensitive
+print_result
+
+echo
+echo "Manual tests"
+echo
+
+echo "Manual test, default (case ignored)."
+run_ask_case_ignore
+print_result
+
+echo "Manual test with -c option (case sensitive)."
+run_ask_case_sensitive
+print_result
