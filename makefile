@@ -9,7 +9,7 @@ home = ~
 srcdir = ./
 
 CFLAGS = -O3 -Wall -g -std=c17
-INCLUDES = -I. -I /usr/include -I $(prefix)/include
+INCLUDES = -I. -I/usr/include -I$(prefix)/include
 SOURCES = ask.c
 ASMS = ask.s ask_funcs.s
 OBJS = ask.o ask_funcs.o
